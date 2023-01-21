@@ -71,6 +71,7 @@ func startTemperatureCollection(interval time.Duration) {
 		for {
 			select {
 			case <-ticker.C:
+				log.Println("Collecting temperature")
 				err := persistenceService.StoreTemperature(burner.GetCurrentTemperature())
 				if err != nil {
 					log.Fatalf("Failed to store temperature. Reason: %s", err)
