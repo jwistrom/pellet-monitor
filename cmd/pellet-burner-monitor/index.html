@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<!--<script src="https://cdn.jsdelivr.net/npm/chart.js@^3"></script>-->
+<!--<script src="https://cdn.jsdelivr.net/npm/moment@^2"></script>-->
+<!--<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1"></script>-->
+
+<script src="https://cdn.amcharts.com/lib/4/core.js"></script>
+<script src="https://cdn.amcharts.com/lib/4/charts.js"></script>
+<script src="https://cdn.amcharts.com/lib/4/themes/animated.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>Pelletsmonitor</title>
+</head>
+<body>
+<div class="w3-container w3-dark-gray"><h2>Pelletsmonitor. Temperatur <u>{{.currentTemperature}}</u> &#8451;</h2></div>
+<br>
+
+{{if .activeAlarm}}
+<div class="w3-container w3-pale-red w3-leftbar w3-border-red w3-round-large w3-margin">
+    <p>
+    <h3 class="w3-text-red"><i class="fa fa-warning w3-xlarge"></i> <b>Pannan larmar!! Larmet började
+        {{.activeAlarmStartTime}}</b></h3></p>
+</div>
+{{end}}
+<br>
+<br>
+<div id="temperatureChart" class="w3-container">
+</div>
+</body>
+
+<script>
+    am4core.ready(function () {
+
+// Themes begin
+        am4core.useTheme(am4themes_animated);
+// Themes end
+
+// Create chart
+        let chart = am4core.create("temperatureChart", am4charts.XYChart);
+        chart.paddingRight = 20;
+
+        chart.data = generateChartData();
+        console.log("Chart data: ", chart.data)
+
+        let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+        dateAxis.baseInterval = {
+            "timeUnit": "minute",
+            "count": 5
+        };
+        dateAxis.tooltipDateFormat = "HH:mm, d MMMM";
+
+        let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+        valueAxis.tooltip.disabled = true;
+        valueAxis.title.text = 'Temp';
+
+        let series = chart.series.push(new am4charts.LineSeries());
+        series.dataFields.dateX = "time";
+        series.dataFields.valueY = "temperature";
+        series.tooltipText = "Temp: [bold]{valueY}[/]";
+        series.fillOpacity = 0.3;
+
+
+        chart.cursor = new am4charts.XYCursor();
+        chart.cursor.lineY.opacity = 0;
+        chart.scrollbarX = new am4charts.XYChartScrollbar();
+        chart.scrollbarX.series.push(series);
+
+        dateAxis.start = 0.8;
+        dateAxis.keepSelection = true;
+
+
+        function generateChartData() {
+            console.log("Temp history: ", {{.temperatureHistory}})
+            let data = {{.temperatureHistory}}
+
+            return data.map(entry => {
+                return {
+                    time: new Date(entry.time),
+                    temperature: entry.temperature
+                }
+            })
+        }
+
+    }); // end am4core.ready()
+</script>
+<style>
+#temperatureChart {
+    height: 500px;
+    width: 100%;
+}
+</style>
+</html>
