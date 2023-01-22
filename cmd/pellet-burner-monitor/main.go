@@ -91,7 +91,7 @@ func loadTemplate() {
 }
 
 func handleRoot(w http.ResponseWriter, req *http.Request) {
-	alarmStartTime := burner.ActiveAlarmStartTime().Format(time.RFC1123)
+	alarmStartTime := burner.ActiveAlarmStartTime().Local().Format(time.RFC1123)
 
 	tempHistory, err := persistenceService.GetTemperatureRecordings()
 	if err != nil {
