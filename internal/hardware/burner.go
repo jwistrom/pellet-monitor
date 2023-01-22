@@ -21,24 +21,23 @@ type Burner interface {
 
 type AlarmListener func()
 
-type DummyBurner struct {
+type BurnerImpl struct {
 	listeners []AlarmListener
 }
 
-func (d *DummyBurner) ActiveAlarmStartTime() time.Time {
+func (d *BurnerImpl) ActiveAlarmStartTime() time.Time {
 	return time.Now().Add(-time.Duration(30) * time.Minute)
 }
 
-func (d *DummyBurner) AlarmIsActive() bool {
+func (d *BurnerImpl) AlarmIsActive() bool {
 	return true
 }
 
-func (d *DummyBurner) GetCurrentTemperature() int {
+func (d *BurnerImpl) GetCurrentTemperature() int {
 	return 76
 }
 
-func (d *DummyBurner) AddAlarmListener(alarmListener AlarmListener) {
+func (d *BurnerImpl) AddAlarmListener(alarmListener AlarmListener) {
 	log.Println("Listener added")
 	d.listeners = append(d.listeners, alarmListener)
-
 }

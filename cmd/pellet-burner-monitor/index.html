@@ -26,67 +26,114 @@
 {{end}}
 <br>
 <br>
-<div id="temperatureChart" class="w3-container">
+<div class="w3-card w3-margin w3-border w3-border-dark-gray">
+    <header class="w3-container w3-dark-gray">
+        <h1>Temperature history</h1>
+    </header>
+    <div id="temperatureChart" class="w3-container"></div>
+</div>
+
+<div class="w3-card w3-margin w3-border w3-border-dark-gray">
+    <header class="w3-container w3-dark-gray">
+        <h1>Alarm history</h1>
+    </header>
+    <div id="alarmChart" class="w3-container"></div>
 </div>
 </body>
 
 <script>
     am4core.ready(function () {
 
-// Themes begin
         am4core.useTheme(am4themes_animated);
-// Themes end
 
-// Create chart
-        let chart = am4core.create("temperatureChart", am4charts.XYChart);
-        chart.paddingRight = 20;
+        generateTemperatureChart()
+        generateAlarmChart()
 
-        chart.data = generateChartData();
+        function generateTemperatureChart() {
+            let chart = am4core.create("temperatureChart", am4charts.XYChart);
+            chart.paddingRight = 20;
 
-        let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
-        dateAxis.baseInterval = {
-            "timeUnit": "minute",
-            "count": 5
-        };
-        dateAxis.tooltipDateFormat = "HH:mm, d MMMM";
-
-        let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-        valueAxis.tooltip.disabled = true;
-        valueAxis.title.text = 'Temp';
-
-        let series = chart.series.push(new am4charts.LineSeries());
-        series.dataFields.dateX = "time";
-        series.dataFields.valueY = "temperature";
-        series.tooltipText = "Temp: [bold]{valueY}[/]";
-        series.fillOpacity = 0.3;
-
-
-        chart.cursor = new am4charts.XYCursor();
-        chart.cursor.lineY.opacity = 0;
-        chart.scrollbarX = new am4charts.XYChartScrollbar();
-        chart.scrollbarX.series.push(series);
-
-        dateAxis.start = 0.8;
-        dateAxis.keepSelection = true;
-
-
-        function generateChartData() {
             let data = {{.temperatureHistory}}
-
-            return data.map(entry => {
+            chart.data = data.map(entry => {
                 return {
                     time: new Date(entry.time),
                     temperature: entry.temperature
                 }
             })
+
+            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            dateAxis.baseInterval = {
+                "timeUnit": "minute",
+                "count": 5
+            };
+            dateAxis.tooltipDateFormat = "HH:mm, d MMMM";
+
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+            valueAxis.tooltip.disabled = true;
+            valueAxis.title.text = 'Temp';
+
+            let series = chart.series.push(new am4charts.LineSeries());
+            series.dataFields.dateX = "time";
+            series.dataFields.valueY = "temperature";
+            series.tooltipText = "Temp: [bold]{valueY}[/]";
+            series.fillOpacity = 0.3;
+
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.lineY.opacity = 0;
+            chart.scrollbarX = new am4charts.XYChartScrollbar();
+            chart.scrollbarX.series.push(series);
+
+            dateAxis.start = 0.8;
+            dateAxis.keepSelection = true;
         }
+
+        function generateAlarmChart() {
+            let chart = am4core.create("alarmChart", am4charts.XYChart);
+            chart.paddingRight = 20;
+
+            let data = {{.temperatureHistory}}
+            chart.data = data.map(entry => {
+                return {
+                    time: new Date(entry.time),
+                    temperature: entry.temperature
+                }
+            })
+
+            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            dateAxis.baseInterval = {
+                "timeUnit": "minute",
+                "count": 5
+            };
+            dateAxis.tooltipDateFormat = "HH:mm, d MMMM";
+
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+            valueAxis.tooltip.disabled = true;
+            valueAxis.title.text = 'Temp';
+
+            let series = chart.series.push(new am4charts.LineSeries());
+            series.dataFields.dateX = "time";
+            series.dataFields.valueY = "temperature";
+            series.tooltipText = "Temp: [bold]{valueY}[/]";
+            series.fillOpacity = 0.3;
+
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.lineY.opacity = 0;
+            chart.scrollbarX = new am4charts.XYChartScrollbar();
+            chart.scrollbarX.series.push(series);
+
+            dateAxis.start = 0.8;
+            dateAxis.keepSelection = true;
+        }
+
 
     }); // end am4core.ready()
 </script>
 <style>
-#temperatureChart {
-    height: 500px;
-    width: 100%;
-}
+    #temperatureChart, #alarmChart {
+        height: 500px;
+        width: 100%;
+    }
 </style>
 </html>
