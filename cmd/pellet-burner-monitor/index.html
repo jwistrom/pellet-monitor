@@ -89,42 +89,51 @@
         }
 
         function generateAlarmChart() {
+            let data = {{.alarmHistory}}
+            console.log("Alarm history: ", data)
+
+            let formattedData = []
+            for (let date in data) {
+                formattedData.push({
+                    date: new Date(date),
+                    count: data[date]
+                })
+            }
+
             let chart = am4core.create("alarmChart", am4charts.XYChart);
-            chart.paddingRight = 20;
+            chart.scrollbarX = new am4core.Scrollbar();
 
-            let data = {{.temperatureHistory}}
-            chart.data = data.map(entry => {
-                return {
-                    time: new Date(entry.time),
-                    temperature: entry.temperature
-                }
-            })
+            chart.data = formattedData
 
+// Create axes
             let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
             dateAxis.baseInterval = {
-                "timeUnit": "minute",
-                "count": 5
+                "timeUnit": "day",
+                "count": 1
             };
-            dateAxis.tooltipDateFormat = "HH:mm, d MMMM";
+            dateAxis.tooltipDateFormat = "d MMMM";
 
             let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-            valueAxis.tooltip.disabled = true;
-            valueAxis.title.text = 'Temp';
+            valueAxis.renderer.minWidth = 50;
+            valueAxis.maxPrecision = 0
 
-            let series = chart.series.push(new am4charts.LineSeries());
-            series.dataFields.dateX = "time";
-            series.dataFields.valueY = "temperature";
-            series.tooltipText = "Temp: [bold]{valueY}[/]";
-            series.fillOpacity = 0.3;
+// Create series
+            var series = chart.series.push(new am4charts.ColumnSeries());
+            series.sequencedInterpolation = true;
+            series.dataFields.valueY = "count";
+            // series.dataFields.categoryX = "date";
+            series.dataFields.dateX = "date"
+            series.tooltipText = "[{categoryX}: bold]{valueY}[/]";
+            series.columns.template.strokeWidth = 0;
 
+            series.tooltip.pointerOrientation = "vertical";
 
+            series.columns.template.column.cornerRadiusTopLeft = 10;
+            series.columns.template.column.cornerRadiusTopRight = 10;
+            series.columns.template.column.fillOpacity = 0.8;
+
+// Cursor
             chart.cursor = new am4charts.XYCursor();
-            chart.cursor.lineY.opacity = 0;
-            chart.scrollbarX = new am4charts.XYChartScrollbar();
-            chart.scrollbarX.series.push(series);
-
-            dateAxis.start = 0.8;
-            dateAxis.keepSelection = true;
         }
 
 

@@ -102,7 +102,7 @@ func handleRoot(w http.ResponseWriter, req *http.Request) {
 	alarmHistory, err := persistenceService.GetAlarmRecordings()
 	if err != nil {
 		log.Printf("Failed to get alarm history: %s", err)
-		alarmHistory = []persistence.AlarmRecording{}
+		alarmHistory = []time.Time{}
 	}
 
 	context := map[string]interface{}{
@@ -110,7 +110,7 @@ func handleRoot(w http.ResponseWriter, req *http.Request) {
 		"activeAlarm":          burner.AlarmIsActive(),
 		"activeAlarmStartTime": alarmStartTime,
 		"temperatureHistory":   tempHistory,
-		"alarmHistory":         alarmHistory,
+		"alarmHistory":         countAlarmRecordingsByDate(alarmHistory),
 	}
 
 	err = htmlTemplate.Execute(w, context)
@@ -135,5 +135,13 @@ func startTemperatureCollection(interval time.Duration) {
 			}
 		}
 	}()
+}
 
+func countAlarmRecordingsByDate(alarmRecordings []time.Time) map[string]int {
+	res := make(map[string]int)
+	for _, rec := range alarmRecordings {
+		date := rec.Format("2006-01-02")
+		res[date] += 1
+	}
+	return res
 }

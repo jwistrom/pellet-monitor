@@ -9,7 +9,7 @@ type Service interface {
 	StoreTemperature(temperature int) error
 	GetTemperatureRecordings() ([]TemperatureRecording, error)
 	StoreAlarm(time time.Time) error
-	GetAlarmRecordings() ([]AlarmRecording, error)
+	GetAlarmRecordings() ([]time.Time, error)
 }
 
 type TemperatureRecording struct {
@@ -17,11 +17,9 @@ type TemperatureRecording struct {
 	Temperature int       `json:"temperature"`
 }
 
-type AlarmRecording time.Time
-
 type ServiceImpl struct {
 	tempStore  []TemperatureRecording
-	alarmStore []AlarmRecording
+	alarmStore []time.Time
 }
 
 func (d *ServiceImpl) GetTemperatureRecordings() (recs []TemperatureRecording, e error) {
@@ -33,17 +31,22 @@ func (d *ServiceImpl) GetTemperatureRecordings() (recs []TemperatureRecording, e
 }
 
 func (d *ServiceImpl) StoreAlarm(time time.Time) error {
-	d.alarmStore = append(d.alarmStore, AlarmRecording(time))
+	d.alarmStore = append(d.alarmStore, time)
 	return nil
 }
 
-func (d *ServiceImpl) GetAlarmRecordings() ([]AlarmRecording, error) {
-	recs := []AlarmRecording{
-		AlarmRecording(time.Now().Add(-time.Duration(2) * time.Hour)),
-		AlarmRecording(time.Now().Add(-time.Duration(8) * time.Hour)),
-		AlarmRecording(time.Now().Add(-time.Duration(24) * time.Hour)),
-		AlarmRecording(time.Now().Add(-time.Duration(36) * time.Hour)),
-		AlarmRecording(time.Now().Add(-time.Duration(40) * time.Hour)),
+func (d *ServiceImpl) GetAlarmRecordings() ([]time.Time, error) {
+	recs := []time.Time{
+		time.Now().Add(-time.Duration(2) * time.Hour),
+		time.Now().Add(-time.Duration(8) * time.Hour),
+		time.Now().Add(-time.Duration(24) * time.Hour),
+		time.Now().Add(-time.Duration(36) * time.Hour),
+		time.Now().Add(-time.Duration(40) * time.Hour),
+		time.Now().Add(-time.Duration(168) * time.Hour),
+		time.Now().Add(-time.Duration(336) * time.Hour),
+		time.Now().Add(-time.Duration(360) * time.Hour),
+		time.Now().Add(-time.Duration(362) * time.Hour),
+		time.Now().Add(-time.Duration(365) * time.Hour),
 	}
 	return recs, nil
 }
