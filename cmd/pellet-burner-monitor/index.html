@@ -2,13 +2,10 @@
 <html lang="en">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<!--<script src="https://cdn.jsdelivr.net/npm/chart.js@^3"></script>-->
-<!--<script src="https://cdn.jsdelivr.net/npm/moment@^2"></script>-->
-<!--<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1"></script>-->
-
 <script src="https://cdn.amcharts.com/lib/4/core.js"></script>
 <script src="https://cdn.amcharts.com/lib/4/charts.js"></script>
 <script src="https://cdn.amcharts.com/lib/4/themes/animated.js"></script>
+<script src="//www.amcharts.com/lib/4/lang/sv_SE.js"></script>
 <head>
     <meta charset="UTF-8">
     <title>Pelletsmonitor</title>
@@ -28,14 +25,14 @@
 <br>
 <div class="w3-card w3-margin w3-border w3-border-dark-gray">
     <header class="w3-container w3-dark-gray">
-        <h1>Temperature history</h1>
+        <h1>Temperaturhistorik</h1>
     </header>
     <div id="temperatureChart" class="w3-container"></div>
 </div>
 
 <div class="w3-card w3-margin w3-border w3-border-dark-gray">
     <header class="w3-container w3-dark-gray">
-        <h1>Alarm history</h1>
+        <h1>Alarmhistorik</h1>
     </header>
     <div id="alarmChart" class="w3-container"></div>
 </div>
@@ -51,6 +48,7 @@
 
         function generateTemperatureChart() {
             let chart = am4core.create("temperatureChart", am4charts.XYChart);
+            chart.language.locale = am4lang_sv_SE
             chart.paddingRight = 20;
 
             let data = {{.temperatureHistory}}
@@ -101,6 +99,7 @@
             }
 
             let chart = am4core.create("alarmChart", am4charts.XYChart);
+            chart.language.locale = am4lang_sv_SE
             chart.scrollbarX = new am4core.Scrollbar();
 
             chart.data = formattedData

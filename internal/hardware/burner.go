@@ -2,6 +2,7 @@ package hardware
 
 import (
 	"log"
+	"math"
 	"time"
 )
 
@@ -34,10 +35,15 @@ func (d *BurnerImpl) AlarmIsActive() bool {
 }
 
 func (d *BurnerImpl) GetCurrentTemperature() int {
-	return 76
+	return convertVoltageToTemperature(3.1)
 }
 
 func (d *BurnerImpl) AddAlarmListener(alarmListener AlarmListener) {
 	log.Println("Listener added")
 	d.listeners = append(d.listeners, alarmListener)
+}
+
+func convertVoltageToTemperature(voltage float32) int {
+	temp := -(38.17098648)*voltage + 179.9526261
+	return int(math.Round(float64(temp)))
 }
