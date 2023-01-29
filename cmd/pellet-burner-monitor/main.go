@@ -5,6 +5,7 @@ import (
 	"github.com/jwistrom/pellet-burner-monitor/internal/notification"
 	"github.com/jwistrom/pellet-burner-monitor/internal/persistence"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -21,8 +22,14 @@ var notificationService notification.Service
 
 func main() {
 
+	dbName := os.Getenv("DB_NAME")
+	if len(dbName) == 0 {
+		dbName = "pelletdb"
+	}
+	dbPwd := os.Getenv("DB_PWD")
+
 	burner = &hardware.BurnerImpl{}
-	persistenceService = &persistence.ServiceImpl{}
+	persistenceService = persistence.NewPostgresService("postgres", dbPwd, dbName)
 	notificationService = setupNotificationService()
 
 	burner.AddAlarmListener(func() {
@@ -37,11 +44,17 @@ func main() {
 		notificationService.SendNotification("Ett alarm har triggats av brännaren!!")
 	})
 
-	startTemperatureCollection(time.Duration(5) * time.Minute)
+	err := persistenceService.StoreAlarm(time.Now())
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	startTemperatureCollection(time.Duration(5) * time.Second)
 
 	loadTemplate()
 
 	http.HandleFunc("/", handleRoot)
+	http.HandleFunc("/recipient", handleAddDeleteRecipient)
 
 	log.Println("Serving on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
@@ -111,12 +124,31 @@ func handleRoot(w http.ResponseWriter, req *http.Request) {
 		"activeAlarmStartTime": alarmStartTime,
 		"temperatureHistory":   tempHistory,
 		"alarmHistory":         countAlarmRecordingsByDate(alarmHistory),
+		"recipients":           notificationService.GetRecipients(),
 	}
 
 	err = htmlTemplate.Execute(w, context)
 	if err != nil {
 		log.Printf("Template render error: %s", err)
 		http.Error(w, err.Error(), 500)
+	}
+}
+
+func handleAddDeleteRecipient(w http.ResponseWriter, req *http.Request) {
+	method := req.Method
+	bodyBytes, err := io.ReadAll(req.Body)
+	if err != nil {
+		log.Println("Failed to read request body")
+	}
+
+	recipient := string(bodyBytes)
+
+	if method == "PUT" {
+		log.Println("Adding recipient " + recipient)
+		notificationService.AddRecipient(recipient)
+	} else if method == "DELETE" {
+		log.Println("Deleting recipient " + recipient)
+		notificationService.DeleteRecipient(recipient)
 	}
 }
 

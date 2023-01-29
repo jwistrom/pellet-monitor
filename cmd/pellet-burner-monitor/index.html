@@ -6,6 +6,7 @@
 <script src="https://cdn.amcharts.com/lib/4/charts.js"></script>
 <script src="https://cdn.amcharts.com/lib/4/themes/animated.js"></script>
 <script src="//www.amcharts.com/lib/4/lang/sv_SE.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <head>
     <meta charset="UTF-8">
     <title>Pelletsmonitor</title>
@@ -36,9 +37,40 @@
     </header>
     <div id="alarmChart" class="w3-container"></div>
 </div>
+<div class="w3-card w3-margin w3-border w3-border-dark-gray">
+    <header class="w3-container w3-dark-gray">
+        <h1>Recipients</h1>
+    </header>
+
+    <ul class="w3-ul">
+        {{range .recipients}}
+        <li>{{.}}&emsp; <i class="w3-button w3-circle fa fa-trash w3-light-gray" onclick="deleteRecipient({{.}})"></i></li>
+        {{end}}
+        <li>Add new: <input class="w3-input" type="text" id="newEmailElement">
+            <i class="w3-button w3-light-gray w3-margin w3-border w3-border-dark-gray" onclick="addRecipient(document.getElementById('newEmailElement').value)">Save</i>
+        </li>
+    </ul>
+
+</div>
 </body>
 
 <script>
+
+    function deleteRecipient(rec) {
+
+        axios({
+            method: 'delete',
+            url: '/recipient',
+            data: rec
+        })
+            .then(() => window.location.reload())
+    }
+
+    function addRecipient(rec) {
+        axios.put("/recipient", rec)
+            .then(() => window.location.reload())
+    }
+
     am4core.ready(function () {
 
         am4core.useTheme(am4themes_animated);
